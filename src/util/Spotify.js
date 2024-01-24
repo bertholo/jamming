@@ -1,5 +1,5 @@
 const clientId = '5c739d587015458794be21922248706e';
-const redirectUri = "http://localhost:3000/";
+const redirectUri = "http://jamming-app-project.surge.sh";
 let accessToken;
 
 const Spotify = {
@@ -23,7 +23,7 @@ const Spotify = {
 
         } else {
 
-            const accessUrl = `https://accounts.spotify.com/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
+            const accessUrl = `https://accounts.spotify.com/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}&scope=playlist-modify-public`;
                 window.location = accessUrl;
         }
 
@@ -63,29 +63,30 @@ const Spotify = {
         }
     },
 
-    savePlaylist(playlistName, trackUris){
-        if(!playlistName || !trackUris.length) {
+    savePlaylist(name, trackUris){
+        if(!name || !trackUris.length) {
             return;
         }
         const accessToken = Spotify.getAccessToken();  
+        console.log('Access Token:', accessToken);
         const headers = {Authorization: `Bearer ${accessToken}`};
         let userId;
 
         return fetch('https://api.spotify.com/v1/me', {headers: headers}
         ).then(response => response.json()
         ).then(jsonResponse => {
-            userId = jsonResponse.id;
+            let userId = jsonResponse.id;
             return fetch(`https://api.spotify.com/v1/users/${userId}/playlists`,{
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({ name: playlistName })
+                headers: headers,
+                method: 'POST',
+                body: JSON.stringify({ name: name })
         })
         }).then(response => response.json()
         ).then(jsonResponse => {
             let playlistId = jsonResponse.id;
             return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistId}/tracks`, {
-                method: 'POST',
                 headers: headers,
+                method: 'POST',
                 body: JSON.stringify({ uris: trackUris })
             })
         })
