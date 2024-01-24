@@ -23,12 +23,7 @@ const Spotify = {
 
         } else {
 
-            const accessUrl = 'https://accounts.spotify.com/authorize';
-                url += '?response_type=token';
-                url += '&client_id=' + encodeURIComponent(clientId);
-                url += '&scope=' + encodeURIComponent(scope);
-                url += '&redirect_uri=' + encodeURIComponent(redirectUri);
-                url += '&state=' + encodeURIComponent(state);
+            const accessUrl = `https://accounts.spotify.com/authorize?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
                 window.location = accessUrl;
         }
 
@@ -46,11 +41,12 @@ const Spotify = {
             if(!response.ok) {
                 throw new Error('Something whent wrong')
             };
-            const jsonResponse = response.json();
-            if(!jsonResponse.tracks) {
+            const jsonResponse = await response.json();
+            
+            if (!jsonResponse || !jsonResponse.tracks) {
                 return [];
             }
-            const mappedJsonResponse = jsonResponse.tracks.map(track => ({
+            const mappedJsonResponse = jsonResponse.tracks.items.map(track => ({
         
                 id: track.id,
                 name: track.name,
@@ -62,7 +58,8 @@ const Spotify = {
 
             return mappedJsonResponse;
         }catch(error){
-            console.log(error)
+            console.log(error);
+            return [];
         }
     },
 

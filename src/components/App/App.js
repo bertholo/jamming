@@ -41,15 +41,21 @@ class App extends React.Component {
     this.setState({playlistName: name});
   }
 
-  savePlaylist() {
+  async savePlaylist() {
     const tracksUri = this.state.playlistTracks.map(track => track.uri);
-    Spotify.savePlaylist(this.state.playlistName, tracksUri
-      ).then(() => {
-        this.setState({
-          playlistName: 'Playlist Name',
-          playlistTracks: []
-        })
-      })
+  
+    try {
+      await Spotify.savePlaylist(this.state.playlistName, tracksUri);
+      
+      // If the above call succeeds, update the state
+      this.setState({
+        playlistName: 'Playlist Name',
+        playlistTracks: []
+      });
+    } catch (error) {
+      console.error('Error saving playlist:', error);
+      // Handle the error or display an error message to the user
+    }
   }
 
   search(term) {
